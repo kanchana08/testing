@@ -21,8 +21,8 @@ def create_screen_session(session_name,script_path):
         print(f"An error occurred: {e}")
 if __name__ == "__main__":
     sessions = {
-            "hello_world_session":"hello.py",
-            "hello_session":"test.py"
+            "hello_world_session":"hello_world.py",
+            "hello_session":"hello.py"
             }
     for session_name,script_path in sessions.items():
         create_screen_session(session_name,script_path)
