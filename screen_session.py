@@ -5,7 +5,7 @@ def create_screen_session(session_name,script_path):
         if not os.path.isfile(script_path):
             print(f"the script {script_path} does not exist.")
             return
-        subprocess.run(['screen','-S',session_name, '-dm'], check=True)
+        subprocess.run(['screen','-S',session_name], check=True)
         result = subprocess.run(['screen', '-ls'],capture_output=True,text=True)
         if session_name in result.stdout:
 
