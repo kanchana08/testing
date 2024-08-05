@@ -1,4 +1,4 @@
 from time import sleep
 while True:
-    print("hello hi")
+    print("hello 12")
     sleep(2)
