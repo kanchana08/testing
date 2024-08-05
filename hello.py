@@ -1,6 +1,6 @@
 ##from time import sleep
 ##while True:
     ##print("hello 1133")
-    ##sleep(2)
 
-print ("hello")
+for i in range(10):
+print("Hello world")
