@@ -1,0 +1,29 @@
+pipeline {
+    
+    agent any
+    tools {nodejs "npm"}
+    stages {
+        stage(checkout){
+            steps{
+                git branch: 'master', credentialsId: 'GIT_PATH', url: 'https://github.com/kanchana08/angular.git'
+                
+            }
+            
+        }
+        stage('build'){ 
+
+            steps{ 
+
+                
+                sh'npm install'
+                sh'npm run ng build --prod'
+                sh'cp -r dist/angular-build/* /var/www/html/proj1'
+
+             
+            } 
+
+        } 
+        
+    }
+
+}
