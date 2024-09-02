@@ -27,3 +27,48 @@ pipeline {
     }
 
 }
+
+
+pipeline {
+    agent any
+    tools { nodejs "npm" }
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'master', credentialsId: 'GIT_PATH', url: 'https://github.com/kanchana08/angular.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'npm install'
+                sh 'npm run ng build --prod'
+            }
+        }
+        stage('Push to Another Repository') {
+            steps {
+                script {
+                    // Define the new branch name
+                    def branchName = "build-${env.BUILD_NUMBER}"
+                    
+                    // Set up Git configuration
+                    sh "git config user.email 'jenkins@localhost'"
+                    sh "git config user.name 'Jenkins CI'"
+
+                    // Add a remote for the new repository
+                    sh "git remote add target-repo https://username:password@github.com/your-username/your-repo.git"
+
+                    // Create a new branch and switch to it
+                    sh "git checkout -b ${branchName}"
+                    
+                    // Add all changes and commit
+                    sh "git add ."
+                    sh "git commit -m 'Build ${env.BUILD_NUMBER}'"
+                    
+                    // Push to the new repository
+                    sh "git push target-repo ${branchName}"
+                }
+            }
+        }
+    }
+}
+
