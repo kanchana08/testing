@@ -91,6 +91,39 @@ pipeline {
         GIT_URL = 'https://github.com/your-repo/your-project.git'
     }
 
+
+
+
+pipeline {
+    agent any
+
+    environment {
+        GIT_URL = 'https://github.com/your-repo.git' // Replace with your repository URL
+        CLONE_DIR = 'latest-branch-clone' // Directory to clone the new branch
+    }
+
+    stages {
+        stage('Checkout Latest Branch') {
+            steps {
+                script {
+                    // Clean the workspace before cloning
+                    deleteDir()
+
+                    // Fetch all branches
+                    sh 'git fetch --all'
+
+                    // Get the latest branch based on creation date
+                    def latestBranch = sh(script: "git for-each-ref --sort=creatordate --format='%(refname:short)' refs/remotes/origin | tail -1", returnStdout: true).trim()
+                    echo "Latest branch is: ${latestBranch}"
+
+                    // Clone the latest branch into a new directory
+                    sh "git clone --branch ${latestBranch} ${GIT_URL} ${CLONE_DIR}"
+                }
+            }
+        }
+    }
+}
+
     stages {
         stage('Clone Repository') {
             steps {
