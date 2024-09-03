@@ -1,1 +1,58 @@
 
+pipeline {
+    agent any
+    tools { nodejs "npm" }
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'master', credentialsId: 'GIT_PATH', url: 'https://github.com/kanchana08/angular.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'npm install'
+                sh 'npm run ng build --prod'
+            }
+        }
+        stage('Push to Another Repository') {
+            steps {
+                script {
+                    // Define the new branch name using the Jenkins build number
+                    def branchName = "build-${env.BUILD_NUMBER}"
+                    
+                    // Configure Git user details
+                    sh "git config user.email 'jenkins@localhost'"
+                    sh "git config user.name 'Jenkins CI'"
+                    
+                    // Use Jenkins credentials for authentication
+                    withCredentials([usernamePassword(credentialsId: 'target-repo-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                        // Add a remote for the new repository using the credentials
+                        sh "git remote remove target-repo || echo 'Remote target-repo does not exist, skipping remove.'"
+                        sh "git remote add target-repo https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/your-username/your-repo.git"
+
+                        // Check if the target repository is empty
+                        def isRepoEmpty = sh(script: "git ls-remote --heads target-repo", returnStatus: true) != 0
+                        
+                        if (isRepoEmpty) {
+                            // Initialize the repository with an initial commit if it's empty
+                            sh "git checkout --orphan ${branchName}" // Create a new orphan branch (no parent)
+                            sh "echo '# Initial Commit' > README.md" // Create an initial file
+                            sh "git add README.md"
+                            sh "git commit -m 'Initial commit for ${branchName}'"
+                        } else {
+                            // If the repository is not empty, create a new branch from the latest commit
+                            sh "git checkout -b ${branchName}"
+                        }
+                        
+                        // Add all changes and commit them (if any)
+                        sh "git add ."
+                        sh "git commit -m 'Build ${env.BUILD_NUMBER}' || echo 'No changes to commit.'"
+                        
+                        // Push the new branch to the target repository
+                        sh "git push target-repo ${branchName}"
+                    }
+                }
+            }
+        }
+    }
+}
