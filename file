@@ -56,3 +56,50 @@ pipeline {
         }
     }
 }
+
+
+pipeline {
+    agent any
+
+    environment {
+        // Define variables for the Git repository URL and the branch to clone
+        GIT_URL = 'https://github.com/your-repo/your-project.git'
+        BRANCH_NAME = 'new-branch-name'  // Replace with the name of the newly created branch
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Clone the specified branch from the Git repository
+                git branch: "${BRANCH_NAME}", url: "${GIT_URL}"
+            }
+        }
+        // Additional stages can be added here
+    }
+}
+
+
+
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch to clone')
+    }
+
+    environment {
+        GIT_URL = 'https://github.com/your-repo/your-project.git'
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Clone the specified branch from the Git repository
+                git branch: "${params.BRANCH_NAME}", url: "${GIT_URL}"
+            }
+        }
+        // Additional stages can be added here
+    }
+}
+
+
