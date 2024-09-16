@@ -42,3 +42,5 @@ for (i in Jenkins.instance.allItems) {
 enum permissions{
   READ, CONFIGURE, CREATE, DELETE
 }
+
+123456576
